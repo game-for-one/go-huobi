@@ -7,12 +7,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/game_for_one/go-huobi/internal"
-	"github.com/game_for_one/go-huobi/internal/requestbuilder"
-	"github.com/game_for_one/go-huobi/pkg/model"
-	"github.com/game_for_one/go-huobi/pkg/model/account"
-	"github.com/game_for_one/go-huobi/pkg/model/subuser"
-	"github.com/game_for_one/go-huobi/pkg/model/wallet"
+	"github.com/game-for-one/go-huobi/internal"
+	"github.com/game-for-one/go-huobi/internal/requestbuilder"
+	"github.com/game-for-one/go-huobi/pkg/model"
+	"github.com/game-for-one/go-huobi/pkg/model/account"
+	"github.com/game-for-one/go-huobi/pkg/model/subuser"
+	"github.com/game-for-one/go-huobi/pkg/model/wallet"
 )
 
 // Responsible to operate wallet

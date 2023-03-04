@@ -3,8 +3,8 @@ package requestbuilder
 import (
 	"time"
 
-	"github.com/game_for_one/go-huobi/internal/model"
-	model2 "github.com/game_for_one/go-huobi/pkg/model"
+	"github.com/game-for-one/go-huobi/internal/model"
+	model2 "github.com/game-for-one/go-huobi/pkg/model"
 )
 
 type WebSocketV1RequestBuilder struct {

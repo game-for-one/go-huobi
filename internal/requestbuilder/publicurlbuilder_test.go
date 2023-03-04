@@ -3,7 +3,7 @@ package requestbuilder
 import (
 	"testing"
 
-	"github.com/game_for_one/go-huobi/pkg/model"
+	"github.com/game-for-one/go-huobi/pkg/model"
 )
 
 func TestPublicUrlBuilder_Build_NoRequestParameter_Success(t *testing.T) {

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/game_for_one/go-huobi/internal"
-	"github.com/game_for_one/go-huobi/internal/requestbuilder"
-	"github.com/game_for_one/go-huobi/pkg/model"
-	"github.com/game_for_one/go-huobi/pkg/model/common"
+	"github.com/game-for-one/go-huobi/internal"
+	"github.com/game-for-one/go-huobi/internal/requestbuilder"
+	"github.com/game-for-one/go-huobi/pkg/model"
+	"github.com/game-for-one/go-huobi/pkg/model/common"
 )
 
 // Responsible to get common information

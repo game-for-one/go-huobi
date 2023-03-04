@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/game_for_one/go-huobi/config"
-	"github.com/game_for_one/go-huobi/logging/applogger"
-	"github.com/game_for_one/go-huobi/pkg/client"
+	"github.com/game-for-one/go-huobi/config"
+	"github.com/game-for-one/go-huobi/logging/applogger"
+	"github.com/game-for-one/go-huobi/pkg/client"
 )
 
 func getSystemStatus() {

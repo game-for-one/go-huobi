@@ -1,6 +1,6 @@
 package order
 
-import "github.com/game_for_one/go-huobi/pkg/model/base"
+import "github.com/game-for-one/go-huobi/pkg/model/base"
 
 type SubscribeOrderV2Response struct {
 	base.WebSocketV2ResponseBase

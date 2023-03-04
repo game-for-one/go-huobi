@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/game_for_one/go-huobi/internal/model"
+	"github.com/game-for-one/go-huobi/internal/model"
 )
 
 func TestWebSocketV1RequestBuilder_build_Time_Success(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/game_for_one/go-huobi/pkg/model"
+	"github.com/game-for-one/go-huobi/pkg/model"
 )
 
 type PrivateUrlBuilder struct {

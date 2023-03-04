@@ -3,7 +3,7 @@ package auth
 import (
 	"encoding/json"
 
-	"github.com/game_for_one/go-huobi/pkg/model/base"
+	"github.com/game-for-one/go-huobi/pkg/model/base"
 )
 
 type WebSocketV2AuthenticationResponse struct {

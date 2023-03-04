@@ -1,4 +1,4 @@
-module github.com/game_for_one/go-huobi
+module github.com/game-for-one/go-huobi
 
 go 1.19
 

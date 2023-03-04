@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/game_for_one/go-huobi/logging/applogger"
-	"github.com/game_for_one/go-huobi/pkg/client/websocketclientbase"
-	"github.com/game_for_one/go-huobi/pkg/model/market"
+	"github.com/game-for-one/go-huobi/logging/applogger"
+	"github.com/game-for-one/go-huobi/pkg/client/websocketclientbase"
+	"github.com/game-for-one/go-huobi/pkg/model/market"
 )
 
 // Responsible to handle Trade data from WebSocket

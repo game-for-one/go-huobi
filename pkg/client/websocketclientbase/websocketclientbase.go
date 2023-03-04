@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/game_for_one/go-huobi/internal/gzip"
-	"github.com/game_for_one/go-huobi/internal/model"
-	"github.com/game_for_one/go-huobi/logging/applogger"
+	"github.com/game-for-one/go-huobi/internal/gzip"
+	"github.com/game-for-one/go-huobi/internal/model"
+	"github.com/game-for-one/go-huobi/logging/applogger"
 	"github.com/gorilla/websocket"
 )
 

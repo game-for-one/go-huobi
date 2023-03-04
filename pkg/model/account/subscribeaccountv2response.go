@@ -1,6 +1,6 @@
 package account
 
-import "github.com/game_for_one/go-huobi/pkg/model/base"
+import "github.com/game-for-one/go-huobi/pkg/model/base"
 
 type SubscribeAccountV2Response struct {
 	base.WebSocketV2ResponseBase

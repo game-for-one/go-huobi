@@ -1,7 +1,7 @@
 package market
 
 import (
-	"github.com/game_for_one/go-huobi/pkg/model/base"
+	"github.com/game-for-one/go-huobi/pkg/model/base"
 	"github.com/shopspring/decimal"
 )
 
