@@ -1,41 +1,58 @@
 package internal
 
 import (
-	"io/ioutil"
-	"net/http"
-	"strings"
+	"fmt"
 
 	"github.com/game-for-one/go-huobi/logging/perflogger"
+	"github.com/valyala/fasthttp"
 )
+
+var HttpClient = &fasthttp.Client{}
 
 func HttpGet(url string) (string, error) {
 	logger := perflogger.GetInstance()
 	logger.Start()
 
-	resp, err := http.Get(url)
+	req := fasthttp.AcquireRequest()
+	res := fasthttp.AcquireResponse()
+
+	req.Header.SetMethod("GET")
+	req.Header.SetRequestURI(url)
+
+	err := HttpClient.Do(req, res)
+	fasthttp.ReleaseRequest(req)
+	defer fasthttp.ReleaseResponse(res)
 	if err != nil {
+		fmt.Printf("Error making request: %e", err)
 		return "", err
 	}
-	defer resp.Body.Close()
-	result, err := ioutil.ReadAll(resp.Body)
 
 	logger.StopAndLog("GET", url)
 
-	return string(result), err
+	return string(res.Body()), err
 }
 
 func HttpPost(url string, body string) (string, error) {
 	logger := perflogger.GetInstance()
 	logger.Start()
 
-	resp, err := http.Post(url, "application/json", strings.NewReader(body))
+	req := fasthttp.AcquireRequest()
+	res := fasthttp.AcquireResponse()
+
+	req.Header.SetMethod("POST")
+	req.Header.SetContentType("application/json")
+	req.Header.SetRequestURI(url)
+	req.SetBodyString(body)
+
+	err := HttpClient.Do(req, res)
+	fasthttp.ReleaseRequest(req)
+	defer fasthttp.ReleaseResponse(res)
 	if err != nil {
+		fmt.Printf("Error making request: %e", err)
 		return "", err
 	}
-	defer resp.Body.Close()
-	result, err := ioutil.ReadAll(resp.Body)
 
 	logger.StopAndLog("POST", url)
 
-	return string(result), err
+	return string(res.Body()), err
 }
