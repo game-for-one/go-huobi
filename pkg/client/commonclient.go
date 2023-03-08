@@ -8,22 +8,25 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/common"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to get common information
 type CommonClient struct {
+	httpCli          *fasthttp.Client
 	publicUrlBuilder *requestbuilder.PublicUrlBuilder
 }
 
 // Initializer
-func (p *CommonClient) Init(host string) *CommonClient {
+func (p *CommonClient) Init(host string, httpCli *fasthttp.Client) *CommonClient {
 	p.publicUrlBuilder = new(requestbuilder.PublicUrlBuilder).Init(host)
+	p.httpCli = httpCli
 	return p
 }
 
 func (p *CommonClient) GetSystemStatus() (string, error) {
 	url := "https://status.huobigroup.com/api/v2/summary.json"
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return "", getErr
 	}
@@ -34,7 +37,7 @@ func (p *CommonClient) GetSystemStatus() (string, error) {
 // Returns current market status
 func (p *CommonClient) GetMarketStatus() (*common.MarketStatus, error) {
 	url := p.publicUrlBuilder.Build("/v2/market-status", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -54,7 +57,7 @@ func (p *CommonClient) GetMarketStatus() (*common.MarketStatus, error) {
 // This endpoint returns all Huobi's supported trading symbol.
 func (p *CommonClient) GetSymbols() ([]common.Symbol, error) {
 	url := p.publicUrlBuilder.Build("/v1/common/symbols", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -74,7 +77,7 @@ func (p *CommonClient) GetSymbols() ([]common.Symbol, error) {
 // This endpoint returns all Huobi's supported trading currencies.
 func (p *CommonClient) GetCurrencys() ([]string, error) {
 	url := p.publicUrlBuilder.Build("/v1/common/currencys", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -104,7 +107,7 @@ func (p *CommonClient) GetV2ReferenceCurrencies(optionalRequest common.GetV2Refe
 
 	url := p.publicUrlBuilder.Build("/v2/reference/currencies", request)
 
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -127,7 +130,7 @@ func (p *CommonClient) GetV2ReferenceCurrencies(optionalRequest common.GetV2Refe
 // This endpoint returns the current timestamp, i.e. the number of milliseconds that have elapsed since 00:00:00 UTC on 1 January 1970.
 func (p *CommonClient) GetTimestamp() (int, error) {
 	url := p.publicUrlBuilder.Build("/v1/common/timestamp", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return 0, getErr
 	}

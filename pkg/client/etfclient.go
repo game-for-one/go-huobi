@@ -9,16 +9,19 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/etf"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to operate ETF
 type ETFClient struct {
+	httpCli           *fasthttp.Client
 	privateUrlBuilder *requestbuilder.PrivateUrlBuilder
 }
 
 // Initializer
-func (p *ETFClient) Init(accessKey string, secretKey string, host string) *ETFClient {
+func (p *ETFClient) Init(accessKey string, secretKey string, host string, httpCli *fasthttp.Client) *ETFClient {
 	p.privateUrlBuilder = new(requestbuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
+	p.httpCli = httpCli
 	return p
 }
 
@@ -29,7 +32,7 @@ func (p *ETFClient) GetSwapConfig(etfName string) (*etf.SwapConfig, error) {
 	request.AddParam("etf_name", etfName)
 
 	url := p.privateUrlBuilder.Build("GET", "/etf/swap/config", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -54,7 +57,7 @@ func (p *ETFClient) SwapIn(request etf.SwapRequest) (bool, error) {
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/etf/swap/in", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return false, postErr
 	}
@@ -79,7 +82,7 @@ func (p *ETFClient) SwapOut(request etf.SwapRequest) (bool, error) {
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/etf/swap/out", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return false, postErr
 	}
@@ -105,7 +108,7 @@ func (p *ETFClient) GetSwapList(etfName string, offset int, limit int) ([]*etf.S
 	request.AddParam("limit", strconv.Itoa(limit))
 
 	url := p.privateUrlBuilder.Build("GET", "/etf/swap/list", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}

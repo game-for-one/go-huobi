@@ -9,23 +9,26 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/account"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to operate account
 type AccountClient struct {
+	httpCli           *fasthttp.Client
 	privateUrlBuilder *requestbuilder.PrivateUrlBuilder
 }
 
 // Initializer
-func (p *AccountClient) Init(accessKey string, secretKey string, host string) *AccountClient {
+func (p *AccountClient) Init(accessKey string, secretKey string, host string, httpCli *fasthttp.Client) *AccountClient {
 	p.privateUrlBuilder = new(requestbuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
+	p.httpCli = httpCli
 	return p
 }
 
 // Returns a list of accounts owned by this API user
 func (p *AccountClient) GetAccountInfo() ([]account.AccountInfo, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v1/account/accounts", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -45,7 +48,7 @@ func (p *AccountClient) GetAccountInfo() ([]account.AccountInfo, error) {
 // Returns the balance of an account specified by account id
 func (p *AccountClient) GetAccountBalance(accountId string) (*account.AccountBalance, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v1/account/accounts/"+accountId+"/balance", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -73,7 +76,7 @@ func (p *AccountClient) GetAccountAssetValuation(accountType string, valuationCu
 	}
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/account/asset-valuation", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -96,7 +99,7 @@ func (p *AccountClient) TransferAccount(request account.TransferAccountRequest) 
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/account/transfer", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -137,7 +140,7 @@ func (p *AccountClient) GetAccountHistory(accountId string, optionalRequest acco
 	}
 
 	url := p.privateUrlBuilder.Build("GET", "/v1/account/history", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -181,7 +184,7 @@ func (p *AccountClient) GetAccountLedger(accountId string, optionalRequest accou
 	}
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/account/ledger", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -205,7 +208,7 @@ func (p *AccountClient) FuturesTransfer(request account.FuturesTransferRequest) 
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/futures/transfer", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -228,7 +231,7 @@ func (p *AccountClient) GetPointBalance(subUid string) (*account.GetPointBalance
 	request.AddParam("subUid", subUid)
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/point/account", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -252,7 +255,7 @@ func (p *AccountClient) TransferPoint(request account.TransferPointRequest) (*ac
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/point/transfer", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}

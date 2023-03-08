@@ -13,16 +13,19 @@ import (
 	"github.com/game-for-one/go-huobi/pkg/model/account"
 	"github.com/game-for-one/go-huobi/pkg/model/subuser"
 	"github.com/game-for-one/go-huobi/pkg/model/wallet"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to operate wallet
 type SubUserClient struct {
+	httpCli           *fasthttp.Client
 	privateUrlBuilder *requestbuilder.PrivateUrlBuilder
 }
 
 // Initializer
-func (p *SubUserClient) Init(accessKey string, secretKey string, host string) *SubUserClient {
+func (p *SubUserClient) Init(accessKey string, secretKey string, host string, httpCli *fasthttp.Client) *SubUserClient {
 	p.privateUrlBuilder = new(requestbuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
+	p.httpCli = httpCli
 	return p
 }
 
@@ -31,7 +34,7 @@ func (p *SubUserClient) CreateSubUser(request subuser.CreateSubUserRequest) ([]s
 	postBody, jsonErr := model.ToJson(request)
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/sub-user/creation", nil)
-	postResp, postErr := internal.HttpPost(url, string(postBody))
+	postResp, postErr := internal.HttpPost(p.httpCli, url, string(postBody))
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -55,7 +58,7 @@ func (p *SubUserClient) SubUserManagement(request subuser.SubUserManagementReque
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/sub-user/management", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -79,7 +82,7 @@ func (p *SubUserClient) SetSubUserTradableMarket(request subuser.SetSubUserTrada
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/sub-user/tradable-market", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -104,7 +107,7 @@ func (p *SubUserClient) SetSubUserTransferability(request subuser.SetSubUserTran
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/sub-user/transferability", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -129,7 +132,7 @@ func (p *SubUserClient) SubUserTransfer(request subuser.SubUserTransferRequest) 
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/subuser/transfer", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return "", postErr
 	}
@@ -147,7 +150,7 @@ func (p *SubUserClient) GetSubUserDepositAddress(subUid int64, currency string) 
 	request.AddParam("currency", currency)
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/sub-user/deposit-address", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -189,7 +192,7 @@ func (p *SubUserClient) QuerySubUserDepositHistory(subUid int64, optionalRequest
 	}
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/sub-user/query-deposit", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -208,7 +211,7 @@ func (p *SubUserClient) QuerySubUserDepositHistory(subUid int64, optionalRequest
 // Returns the aggregated balance from all the sub-users
 func (p *SubUserClient) GetSubUserAggregateBalance() ([]account.AccountBalance, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v1/subuser/aggregate-balance", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -228,7 +231,7 @@ func (p *SubUserClient) GetSubUserAggregateBalance() ([]account.AccountBalance, 
 // Returns the balance of a sub-account specified by sub-uid
 func (p *SubUserClient) GetSubUserAccount(subUid int64) ([]account.SubUserAccount, error) {
 	url := p.privateUrlBuilder.Build("GET", fmt.Sprintf("/v1/account/accounts/%d", subUid), nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -246,7 +249,7 @@ func (p *SubUserClient) GetSubUserAccount(subUid int64) ([]account.SubUserAccoun
 
 func (p *SubUserClient) GetUid() (int64, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v2/user/uid", nil)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return 0, getErr
 	}

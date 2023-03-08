@@ -9,16 +9,19 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/margin"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to operate cross margin
 type CrossMarginClient struct {
+	httpCli           *fasthttp.Client
 	privateUrlBuilder *requestbuilder.PrivateUrlBuilder
 }
 
 // Initializer
-func (p *CrossMarginClient) Init(accessKey string, secretKey string, host string) *CrossMarginClient {
+func (p *CrossMarginClient) Init(accessKey string, secretKey string, host string, httpCli *fasthttp.Client) *CrossMarginClient {
 	p.privateUrlBuilder = new(requestbuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
+	p.httpCli = httpCli
 	return p
 }
 
@@ -31,7 +34,7 @@ func (p *CrossMarginClient) TransferIn(request margin.CrossMarginTransferRequest
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/cross-margin/transfer-in", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -57,7 +60,7 @@ func (p *CrossMarginClient) TransferOut(request margin.CrossMarginTransferReques
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/cross-margin/transfer-out", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -79,7 +82,7 @@ func (p *CrossMarginClient) GetMarginLoanInfo() ([]margin.CrossMarginLoanInfo, e
 	request := new(model.GetRequest).Init()
 
 	url := p.privateUrlBuilder.Build("GET", "/v1/cross-margin/loan-info", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -105,7 +108,7 @@ func (p *CrossMarginClient) ApplyLoan(request margin.CrossMarginOrdersRequest) (
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/cross-margin/orders", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -130,7 +133,7 @@ func (p *CrossMarginClient) Repay(orderId string, request margin.MarginOrdersRep
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/cross-margin/orders/"+orderId+"/repay", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -176,7 +179,7 @@ func (p *CrossMarginClient) MarginLoanOrders(optionalRequest margin.CrossMarginL
 	}
 
 	url := p.privateUrlBuilder.Build("GET", "/v1/cross-margin/loan-orders", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -201,7 +204,7 @@ func (p *CrossMarginClient) MarginAccountsBalance(SubUid string) (*margin.CrossM
 	request.AddParam("sub-uid", SubUid)
 
 	url := p.privateUrlBuilder.Build("GET", "/v1/cross-margin/accounts/balance", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -227,7 +230,7 @@ func (p *CrossMarginClient) GeneralRepay(request margin.CrossMarginGeneralReplay
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/account/repayment", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -273,7 +276,7 @@ func (p *CrossMarginClient) GeneralMarginLoanOrders(optionalRequest margin.Cross
 	}
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/account/repayment", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}

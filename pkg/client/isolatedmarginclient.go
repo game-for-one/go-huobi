@@ -9,16 +9,19 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/margin"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to operate isolated margin
 type IsolatedMarginClient struct {
+	httpCli           *fasthttp.Client
 	privateUrlBuilder *requestbuilder.PrivateUrlBuilder
 }
 
 // Initializer
-func (p *IsolatedMarginClient) Init(accessKey string, secretKey string, host string) *IsolatedMarginClient {
+func (p *IsolatedMarginClient) Init(accessKey string, secretKey string, host string, httpCli *fasthttp.Client) *IsolatedMarginClient {
 	p.privateUrlBuilder = new(requestbuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
+	p.httpCli = httpCli
 	return p
 }
 
@@ -31,7 +34,7 @@ func (p *IsolatedMarginClient) TransferIn(request margin.IsolatedMarginTransferR
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/dw/transfer-in/margin", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -57,7 +60,7 @@ func (p *IsolatedMarginClient) TransferOut(request margin.IsolatedMarginTransfer
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/dw/transfer-out/margin", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -80,7 +83,7 @@ func (p *IsolatedMarginClient) GetMarginLoanInfo(optionalRequest margin.GetMargi
 		request.AddParam("symbols", optionalRequest.Symbols)
 	}
 	url := p.privateUrlBuilder.Build("GET", "/v1/margin/loan-info", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -106,7 +109,7 @@ func (p *IsolatedMarginClient) Apply(request margin.IsolatedMarginOrdersRequest)
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/margin/orders", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -132,7 +135,7 @@ func (p *IsolatedMarginClient) Repay(orderId string, request margin.MarginOrders
 	}
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/margin/orders/"+orderId+"/repay", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -175,7 +178,7 @@ func (p *IsolatedMarginClient) MarginLoanOrders(symbol string, optionalRequest m
 		request.AddParam("sub-uid", strconv.Itoa(optionalRequest.SubUid))
 	}
 	url := p.privateUrlBuilder.Build("GET", "/v1/margin/loan-orders", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -204,7 +207,7 @@ func (p *IsolatedMarginClient) MarginAccountsBalance(optionalRequest margin.Marg
 		request.AddParam("symbol", optionalRequest.Symbol)
 	}
 	url := p.privateUrlBuilder.Build("GET", "/v1/margin/accounts/balance", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}

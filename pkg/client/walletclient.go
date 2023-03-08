@@ -9,16 +9,19 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/wallet"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to operate wallet
 type WalletClient struct {
+	httpCli           *fasthttp.Client
 	privateUrlBuilder *requestbuilder.PrivateUrlBuilder
 }
 
 // Initializer
-func (p *WalletClient) Init(accessKey string, secretKey string, host string) *WalletClient {
+func (p *WalletClient) Init(accessKey string, secretKey string, host string, httpCli *fasthttp.Client) *WalletClient {
 	p.privateUrlBuilder = new(requestbuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
+	p.httpCli = httpCli
 	return p
 }
 
@@ -29,7 +32,7 @@ func (p *WalletClient) GetDepositAddress(currency string) ([]wallet.DepositAddre
 	request.AddParam("currency", currency)
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/account/deposit/address", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -52,7 +55,7 @@ func (p *WalletClient) GetWithdrawQuota(currency string) (*wallet.WithdrawQuota,
 	request.AddParam("currency", currency)
 
 	url := p.privateUrlBuilder.Build("GET", "/v2/account/withdraw/quota", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -71,7 +74,7 @@ func (p *WalletClient) GetWithdrawQuota(currency string) (*wallet.WithdrawQuota,
 // Parent user to query withdraw address available for API key
 func (p *WalletClient) GetWithdrawAddress(request *model.GetRequest) (*wallet.GetWithdrawAddressResponse, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v2/account/withdraw/address", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -92,7 +95,7 @@ func (p *WalletClient) CreateWithdraw(request wallet.CreateWithdrawRequest) (int
 	postBody, jsonErr := model.ToJson(request)
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/dw/withdraw/api/create", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -113,7 +116,7 @@ func (p *WalletClient) CreateWithdraw(request wallet.CreateWithdrawRequest) (int
 func (p *WalletClient) CancelWithdraw(withdrawId int64) (int64, error) {
 
 	url := p.privateUrlBuilder.Build("POST", "/v1/dw/withdraw-virtual/"+strconv.FormatInt(withdrawId, 10)+"}/cancel", nil)
-	postResp, postErr := internal.HttpPost(url, "")
+	postResp, postErr := internal.HttpPost(p.httpCli, url, "")
 	if postErr != nil {
 		return 0, postErr
 	}
@@ -150,7 +153,7 @@ func (p *WalletClient) QueryDepositWithdraw(depositOrWithdraw string, optionalRe
 	}
 
 	url := p.privateUrlBuilder.Build("GET", "/v1/query/deposit-withdraw", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}

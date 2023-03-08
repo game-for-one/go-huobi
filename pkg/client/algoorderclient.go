@@ -7,16 +7,19 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/algoorder"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to operate algo order
 type AlgoOrderClient struct {
+	httpCli           *fasthttp.Client
 	privateUrlBuilder *requestbuilder.PrivateUrlBuilder
 }
 
 // Initializer
-func (p *AlgoOrderClient) Init(accessKey string, secretKey string, host string) *AlgoOrderClient {
+func (p *AlgoOrderClient) Init(accessKey string, secretKey string, host string, httpCli *fasthttp.Client) *AlgoOrderClient {
 	p.privateUrlBuilder = new(requestbuilder.PrivateUrlBuilder).Init(accessKey, secretKey, host)
+	p.httpCli = httpCli
 	return p
 }
 
@@ -25,7 +28,7 @@ func (p *AlgoOrderClient) PlaceOrder(request *algoorder.PlaceOrderRequest) (*alg
 	postBody, jsonErr := model.ToJson(request)
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/algo-orders", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -44,7 +47,7 @@ func (p *AlgoOrderClient) CancelOrder(request *algoorder.CancelOrdersRequest) (*
 	postBody, jsonErr := model.ToJson(request)
 
 	url := p.privateUrlBuilder.Build("POST", "/v2/algo-orders/cancellation", nil)
-	postResp, postErr := internal.HttpPost(url, postBody)
+	postResp, postErr := internal.HttpPost(p.httpCli, url, postBody)
 	if postErr != nil {
 		return nil, postErr
 	}
@@ -60,7 +63,7 @@ func (p *AlgoOrderClient) CancelOrder(request *algoorder.CancelOrdersRequest) (*
 
 func (p *AlgoOrderClient) GetOpenOrders(request *model.GetRequest) (*algoorder.GetOpenOrdersResponse, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v2/algo-orders/opening", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -76,7 +79,7 @@ func (p *AlgoOrderClient) GetOpenOrders(request *model.GetRequest) (*algoorder.G
 
 func (p *AlgoOrderClient) GetHistoryOrders(request *model.GetRequest) (*algoorder.GetHistoryOrdersResponse, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v2/algo-orders/history", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -92,7 +95,7 @@ func (p *AlgoOrderClient) GetHistoryOrders(request *model.GetRequest) (*algoorde
 
 func (p *AlgoOrderClient) GetSpecificOrder(request *model.GetRequest) (*algoorder.GetSpecificOrderResponse, error) {
 	url := p.privateUrlBuilder.Build("GET", "/v2/algo-orders/specific", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(p.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}

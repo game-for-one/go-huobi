@@ -9,16 +9,19 @@ import (
 	"github.com/game-for-one/go-huobi/internal/requestbuilder"
 	"github.com/game-for-one/go-huobi/pkg/model"
 	"github.com/game-for-one/go-huobi/pkg/model/market"
+	"github.com/valyala/fasthttp"
 )
 
 // Responsible to get market information
 type MarketClient struct {
+	httpCli          *fasthttp.Client
 	publicUrlBuilder *requestbuilder.PublicUrlBuilder
 }
 
 // Initializer
-func (p *MarketClient) Init(host string) *MarketClient {
+func (p *MarketClient) Init(host string, httpCli *fasthttp.Client) *MarketClient {
 	p.publicUrlBuilder = new(requestbuilder.PublicUrlBuilder).Init(host)
+	p.httpCli = httpCli
 	return p
 }
 
@@ -35,7 +38,7 @@ func (client *MarketClient) GetCandlestick(symbol string, optionalRequest market
 	}
 
 	url := client.publicUrlBuilder.Build("/market/history/kline", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(client.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -59,7 +62,7 @@ func (client *MarketClient) GetLast24hCandlestickAskBid(symbol string) (*market.
 	request.AddParam("symbol", symbol)
 
 	url := client.publicUrlBuilder.Build("/market/detail/merged", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(client.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -83,7 +86,7 @@ func (client *MarketClient) GetAllSymbolsLast24hCandlesticksAskBid() ([]market.S
 	request := new(model.GetRequest).Init()
 
 	url := client.publicUrlBuilder.Build("/market/tickers", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(client.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -112,7 +115,7 @@ func (client *MarketClient) GetDepth(symbol string, step string, optionalRequest
 	}
 
 	url := client.publicUrlBuilder.Build("/market/depth", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(client.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -138,7 +141,7 @@ func (client *MarketClient) GetLatestTrade(symbol string) (*market.TradeTick, er
 	request.AddParam("symbol", symbol)
 
 	url := client.publicUrlBuilder.Build("/market/trade", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(client.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -166,7 +169,7 @@ func (client *MarketClient) GetHistoricalTrade(symbol string, optionalRequest ma
 	}
 
 	url := client.publicUrlBuilder.Build("/market/history/trade", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(client.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}
@@ -192,7 +195,7 @@ func (client *MarketClient) GetLast24hCandlestick(symbol string) (*market.Candle
 	request.AddParam("symbol", symbol)
 
 	url := client.publicUrlBuilder.Build("/market/detail", request)
-	getResp, getErr := internal.HttpGet(url)
+	getResp, getErr := internal.HttpGet(client.httpCli, url)
 	if getErr != nil {
 		return nil, getErr
 	}

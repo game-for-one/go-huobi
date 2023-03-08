@@ -7,9 +7,7 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-var HttpClient = &fasthttp.Client{}
-
-func HttpGet(url string) (string, error) {
+func HttpGet(httpCli *fasthttp.Client, url string) (string, error) {
 	logger := perflogger.GetInstance()
 	logger.Start()
 
@@ -19,7 +17,7 @@ func HttpGet(url string) (string, error) {
 	req.Header.SetMethod("GET")
 	req.Header.SetRequestURI(url)
 
-	err := HttpClient.Do(req, res)
+	err := httpCli.Do(req, res)
 	fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(res)
 	if err != nil {
@@ -32,7 +30,7 @@ func HttpGet(url string) (string, error) {
 	return string(res.Body()), err
 }
 
-func HttpPost(url string, body string) (string, error) {
+func HttpPost(httpCli *fasthttp.Client, url string, body string) (string, error) {
 	logger := perflogger.GetInstance()
 	logger.Start()
 
@@ -44,7 +42,7 @@ func HttpPost(url string, body string) (string, error) {
 	req.Header.SetRequestURI(url)
 	req.SetBodyString(body)
 
-	err := HttpClient.Do(req, res)
+	err := httpCli.Do(req, res)
 	fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(res)
 	if err != nil {
